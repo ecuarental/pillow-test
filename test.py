@@ -17,63 +17,73 @@ OUTPUT_EXTENSION = '.jpeg'
 DESIRED_SIZE = (1920, 1080)
 WIDTH, HEIGHT = DESIRED_SIZE
 DESIRED_RATIO = WIDTH / HEIGHT
+BASENAME = 'carousel'
 
-for filename in glob(INPUT_FOLDER + '*.jpeg'):
 
-    logging.info('Opening the file %s', filename)
-    im = Image.open(filename)
+def resize_img(img_file, output_size):
+    """Resize image"""
+    out_width, out_height = output_size
+    out_ratio = out_width / out_height
 
-    filename_base = path.basename(filename).split('.')[0]
-    logging.info('The base filename is %s', filename_base)
+    logging.info('Opening the file %s', img_file)
+    image = Image.open(img_file)
+    w, h = image.size
+    logging.info('The image size has %d width %d height', w, h)
+    ratio = w/h
+    logging.info('The aspect ratio is %2f', ratio)
+    logging.info('The desired aspect ratio is %2f', out_ratio)
 
-    x, y = im.size
-    logging.info('The image size has %d width %d height', x, y)
-    aspect_ratio = x/y
-    logging.info('The aspect ratio is %2f', aspect_ratio)
-    logging.info('The desired aspect ratio is %2f', DESIRED_RATIO)
-
-    if aspect_ratio > DESIRED_RATIO:
+    if ratio > out_ratio:
         logging.info('It is a wider image')
-        width = round(HEIGHT * aspect_ratio)
-        logging.info('The transformed image size is %d x %d', width, HEIGHT)
-        im = im.resize((width, HEIGHT), resample=Image.NEAREST)
-
-        width_dif = width - WIDTH
-        logging.info('The width difference is %d', width_dif)
-
-        box = (
-            round(width_dif / 2),
-            0,
-            WIDTH,
-            HEIGHT
-        )
-
-        im = im.crop(box)
+        width = round(out_height * ratio)
+        height = out_height
+        logging.info('The transformed image size is %d x %d',
+                     width, height)
+        image = image.resize((width, height), resample=Image.NEAREST)
 
     else:
         logging.info('It is a taller image')
-        height = round(WIDTH / aspect_ratio)
-        logging.info('The transformed image size is %d x %d', WIDTH, height)
-        im = im.resize((WIDTH, height), resample=Image.NEAREST)
+        height = round(out_width / ratio)
+        width = out_width
+        logging.info('The transformed image size is %d x %d',
+                     width, height)
+        image = image.resize((width, height), resample=Image.NEAREST)
 
-        height_dif = height - HEIGHT
-        logging.info('The height difference is %d', height_dif)
+    width_dif = width - out_width
+    logging.info('The width difference is %d', width_dif)
+    height_dif = height - out_height
+    logging.info('The height difference is %d', height_dif)
 
-        box = (
-            0,
-            round(height_dif / 2),
-            WIDTH,
-            HEIGHT
-        )
+    width_offset = round(width_dif / 2)
+    height_offset = round(height_dif / 2)
 
-        im = im.crop(box)
+    box = (
+        width_offset,
+        height_offset,
+        out_width + width_offset,
+        out_height + height_offset
+    )
 
-    im_w, im_y = im.size
+    logging.info('The box is %s', box)
+    image = image.crop(box)
+
+    im_w, im_y = image.size
     logging.info('The cropped image is %d x %d', im_w, im_y)
+
+    return image
+
+
+for count, filename in enumerate(glob(INPUT_FOLDER + '*.jpeg')):
+
+    out_image = resize_img(filename, DESIRED_SIZE)
+
+    #filename_base = path.basename(filename).split('.')[0]
+    count += 1  # Start counting from 1
+    filename_base = f'{BASENAME}_{count:02d}'
 
     filename_output = path.join(
         OUTPUT_FOLDER, filename_base + OUTPUT_EXTENSION)
     logging.info('The output filename is %s', filename_output)
 
-    im.save(filename_output)
+    out_image.save(filename_output)
     logging.info('The output filename was saved successfully')
