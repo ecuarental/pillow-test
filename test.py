@@ -17,7 +17,9 @@ OUTPUT_EXTENSION = '.jpeg'
 DESIRED_SIZE = (1920, 1080)
 WIDTH, HEIGHT = DESIRED_SIZE
 DESIRED_RATIO = WIDTH / HEIGHT
-BASENAME = 'carousel'
+KEEP_NAME = True
+BASENAME = 'reveal'
+COUNTER_START = 1
 
 
 def resize_img(img_file, output_size):
@@ -77,9 +79,11 @@ for count, filename in enumerate(glob(INPUT_FOLDER + '*.jpeg')):
 
     out_image = resize_img(filename, DESIRED_SIZE)
 
-    #filename_base = path.basename(filename).split('.')[0]
-    count += 1  # Start counting from 1
-    filename_base = f'{BASENAME}_{count:02d}'
+    if KEEP_NAME:
+        filename_base = path.basename(filename).split('.')[0]
+    else:
+        count += COUNTER_START
+        filename_base = f'{BASENAME}_{count:02d}'
 
     filename_output = path.join(
         OUTPUT_FOLDER, filename_base + OUTPUT_EXTENSION)
