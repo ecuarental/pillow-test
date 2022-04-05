@@ -13,12 +13,17 @@ logging.basicConfig(level=logging.INFO)
 RESOURCES_FOLDER = 'resources/'
 INPUT_FOLDER = path.join(RESOURCES_FOLDER, 'input/')
 OUTPUT_FOLDER = path.join(RESOURCES_FOLDER, 'output/')
-OUTPUT_EXTENSION = '.jpeg'
-DESIRED_SIZE = (1920, 1080)
+OUTPUT_EXTENSION = '.jpg'
+INPUT_EXTENSION = '.jpg'
+DESIRED_SIZE = (1280, 720)
+'''
+1920 x 1080
+1280 x 720
+'''
 WIDTH, HEIGHT = DESIRED_SIZE
 DESIRED_RATIO = WIDTH / HEIGHT
 KEEP_NAME = True
-BASENAME = 'reveal'
+BASENAME = 'marketing'
 COUNTER_START = 1
 
 
@@ -75,7 +80,7 @@ def resize_img(img_file, output_size):
     return image
 
 
-for count, filename in enumerate(glob(INPUT_FOLDER + '*.jpeg')):
+for count, filename in enumerate(glob(INPUT_FOLDER + '*' + INPUT_EXTENSION)):
 
     out_image = resize_img(filename, DESIRED_SIZE)
 
