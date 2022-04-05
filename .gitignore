@@ -153,3 +153,4 @@ cython_debug/
 
 # Added by me
 resources/
+.DS_Store
